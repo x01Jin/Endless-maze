@@ -47,6 +47,7 @@ class Dungeon:
 
         self.player_x, self.player_y = 1, 1
 
+        self.keys = [Key() for _ in range(3)]  # Create three keys
         self.goal_x, self.goal_y = random.randint(1, GRID_WIDTH - 2), random.randint(1, GRID_HEIGHT - 2)
 
     def draw(self, screen):
@@ -54,6 +55,11 @@ class Dungeon:
             for x, cell in enumerate(row):
                 color = WHITE if cell else BLACK
                 pygame.draw.rect(screen, color, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+
+        # Draw the keys
+        for key in self.keys:
+            pygame.draw.rect(screen, (255, 255, 0), (key.x * CELL_SIZE, key.y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+
         pygame.draw.rect(screen, RED, (self.goal_x * CELL_SIZE, self.goal_y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
         pygame.draw.rect(screen, (0, 0, 255), (self.player_x * CELL_SIZE, self.player_y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
         font = pygame.font.Font(None, 36)
@@ -67,14 +73,40 @@ class Dungeon:
             self.regenerate_maze = False
 
         current_time = pygame.time.get_ticks()
-        if current_time - self.last_move_time > self.move_delay:
+        if self.can_move(current_time):
             new_x, new_y = self.player_x + dx, self.player_y + dy
-            if 0 <= new_x < GRID_WIDTH and 0 <= new_y < GRID_HEIGHT:
-                if new_x == self.goal_x and new_y == self.goal_y:
-                    self.regenerate_maze = True
-                elif self.map[new_y][new_x]:
-                    self.player_x, self.player_y = new_x, new_y
-                self.last_move_time = current_time
+            if self.is_within_bounds(new_x, new_y):
+                if self.collect_key(new_x, new_y):
+                    return
+                if self.reach_goal(new_x, new_y):
+                    return
+
+    def can_move(self, current_time):
+        if current_time - self.last_move_time <= self.move_delay:
+            return False
+        return True
+
+    def is_within_bounds(self, new_x, new_y):
+        return 0 <= new_x < GRID_WIDTH and 0 <= new_y < GRID_HEIGHT
+
+    def collect_key(self, new_x, new_y):
+        for key in self.keys:
+            if new_x == key.x and new_y == key.y:
+                self.keys.remove(key)
+                return True
+        return False
+
+    def reach_goal(self, new_x, new_y):
+        if new_x == self.goal_x and new_y == self.goal_y and not self.keys:
+            self.regenerate_maze = True
+
+        if self.map[new_y][new_x]:
+            self.player_x, self.player_y = new_x, new_y
+            self.last_move_time = pygame.time.get_ticks()
+
+class Key:
+    def __init__(self):
+        self.x, self.y = random.randint(1, GRID_WIDTH - 2), random.randint(1, GRID_HEIGHT - 2)
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
