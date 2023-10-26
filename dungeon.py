@@ -1,10 +1,10 @@
 import pygame
 import random
 
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 920, 600
 CELL_SIZE = 40
-GRID_WIDTH = WIDTH // CELL_SIZE
-GRID_HEIGHT = HEIGHT // CELL_SIZE
+GRID_WIDTH = (WIDTH // CELL_SIZE) // 2 * 2 + 1
+GRID_HEIGHT = (HEIGHT // CELL_SIZE) // 2 * 2 + 1
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -88,17 +88,13 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # Get player input
     keys = pygame.key.get_pressed()
     move = (keys[pygame.K_d] - keys[pygame.K_a], keys[pygame.K_s] - keys[pygame.K_w])
 
-    # Process player input
     dungeon.move(*move)
 
-    # Clear the screen
     screen.fill((0, 0, 0))
 
-    # Draw the dungeon and player
     dungeon.draw(screen)
 
     pygame.display.flip()
