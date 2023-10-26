@@ -10,7 +10,7 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 MOVEMENT_SPEED = 200
 
-class Dungeon:
+class Maze:
     def __init__(self):
         self.level = 1
         self.generate_maze()
@@ -38,7 +38,6 @@ class Dungeon:
             else:
                 stack.pop()
 
-        # Generate keys and goal in white tiles only
         available_tiles = [(x, y) for y in range(1, GRID_HEIGHT - 1) for x in range(1, GRID_WIDTH - 1) if self.map[y][x]]
         random.shuffle(available_tiles)
         self.keys = [Key(*available_tiles.pop()) for _ in range(3)]
@@ -50,7 +49,6 @@ class Dungeon:
                 color = WHITE if cell else BLACK
                 pygame.draw.rect(screen, color, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
-        # Draw the keys
         for key in self.keys:
             pygame.draw.rect(screen, (255, 255, 0), (key.x * CELL_SIZE, key.y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
 
@@ -105,7 +103,7 @@ class Key:
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Procedural Maze Game")
-dungeon = Dungeon()
+maze = Maze()
 running = True
 
 while running:
@@ -115,10 +113,10 @@ while running:
 
     keys = pygame.key.get_pressed()
     move = (keys[pygame.K_d] - keys[pygame.K_a], keys[pygame.K_s] - keys[pygame.K_w])
-    dungeon.move(*move)
+    maze.move(*move)
 
     screen.fill((0, 0, 0))
-    dungeon.draw(screen)
+    maze.draw(screen)
     pygame.display.flip()
 
 pygame.quit()
